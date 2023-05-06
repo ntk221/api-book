@@ -1,0 +1,2 @@
+# refactor_notion_backend
+NotionクローンのバックエンドをGoで書き直す試みです。
