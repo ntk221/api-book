@@ -1,18 +1,21 @@
 package main
 
 import (
-	"io"
 	"log"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/ntk221/refactor_notion_backend/handlers"
 )
 
 func main() {
-	helloHandler := func(w http.ResponseWriter, req *http.Request) {
-		io.WriteString(w, "Hello, World!\n")
-	}
+	r := chi.NewRouter()
 
-	http.HandleFunc("/", helloHandler)
+	r.Get("/hello", handlers.HelloHandler)
+	r.Post("/article", handlers.PostArticleHandler)
+	r.Get("/article/list", handlers.ListArticleHandler)
+	r.Get("/article/{id: [0-9]+}", handlers.GetArticleByIDHanlder)
 
 	log.Println("Server start at port 8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8080", r))
 }
