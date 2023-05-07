@@ -1,12 +1,14 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi"
+	"github.com/ntk221/refactor_notion_backend/models"
 )
 
 var HelloHandler = func(w http.ResponseWriter, req *http.Request) {
@@ -14,7 +16,14 @@ var HelloHandler = func(w http.ResponseWriter, req *http.Request) {
 }
 
 var PostArticleHandler = func(w http.ResponseWriter, req *http.Request) {
-	io.WriteString(w, "Posting Article...\n")
+	var reqArticle models.Article
+	if err := json.NewDecoder(req.Body).Decode(&reqArticle); err != nil {
+		http.Error(w, "cannot decode json\n", http.StatusBadRequest)
+		return
+	}
+
+	article := reqArticle
+	json.NewEncoder(w).Encode(article)
 }
 
 func ListArticleHandler(w http.ResponseWriter, req *http.Request) {
@@ -32,8 +41,11 @@ func ListArticleHandler(w http.ResponseWriter, req *http.Request) {
 		page = 1
 	}
 
-	resString := fmt.Sprintf("Listing Article on Page: %d\n", page)
-	io.WriteString(w, resString)
+	fmt.Println("page: ", page)
+
+	articles := []models.Article{models.Article1, models.Article2}
+	json.NewEncoder(w).Encode(articles)
+
 }
 
 func GetArticleByIDHanlder(w http.ResponseWriter, req *http.Request) {
@@ -43,5 +55,7 @@ func GetArticleByIDHanlder(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	res := fmt.Sprintf("Getting Article with ID: %d\n", articleID)
-	io.WriteString(w, res)
+	fmt.Println(res)
+	artile := models.Article1
+	json.NewEncoder(w).Encode(artile)
 }
