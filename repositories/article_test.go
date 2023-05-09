@@ -9,7 +9,7 @@ import (
 	"github.com/ntk221/refactor_notion_backend/repositories"
 )
 
-func TestSelectArticleDetail(t *testing.T) {
+func TestGetArticleById(t *testing.T) {
 	tests := []struct {
 		testTitle string
 		expected  models.Article
@@ -40,7 +40,7 @@ func TestSelectArticleDetail(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.testTitle, func(t *testing.T) {
-			got, err := repositories.SelectArticleDetail(testDB, test.expected.ID)
+			got, err := repositories.GetArticleByID(testDB, test.expected.ID)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -111,14 +111,14 @@ func TestUpdateArticleNice(t *testing.T) {
 
 	articleID = 1
 
-	before, _ := repositories.SelectArticleDetail(testDB, articleID)
+	before, _ := repositories.GetArticleByID(testDB, articleID)
 
 	err := repositories.UpdateArticleNice(testDB, articleID)
 	if err != nil {
 		t.Error(err)
 	}
 
-	got, _ := repositories.SelectArticleDetail(testDB, articleID)
+	got, _ := repositories.GetArticleByID(testDB, articleID)
 
 	if got.NiceNum != before.NiceNum+1 {
 		t.Errorf("got %v, expected %v", got.NiceNum, before.NiceNum)

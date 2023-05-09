@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/ntk221/refactor_notion_backend/models"
 )
@@ -34,7 +35,7 @@ func InserArticle(db *sql.DB, article models.Article) (models.Article, error) {
 	return newArticle, nil
 }
 
-func SelectArticleList(db *sql.DB, page int) ([]models.Article, error) {
+func SelectArticleList(db *sql.DB, page uint) ([]models.Article, error) {
 	const sqlStr = `
 	select article_id, title, contents, username, nice
 	from articles
@@ -59,12 +60,15 @@ func SelectArticleList(db *sql.DB, page int) ([]models.Article, error) {
 	return articles, nil
 }
 
-func SelectArticleDetail(db *sql.DB, articleID uint) (models.Article, error) {
+func GetArticleByID(db *sql.DB, articleID uint) (models.Article, error) {
 	const sqlStr = `
 		select *
 		from articles
 		where article_id = ?;
 	`
+
+	fmt.Println(articleID)
+
 	row := db.QueryRow(sqlStr, articleID)
 	if err := row.Err(); err != nil {
 		return models.Article{}, err

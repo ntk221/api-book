@@ -2,13 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/ntk221/refactor_notion_backend/models"
+	"github.com/ntk221/refactor_notion_backend/services"
 )
 
 var HelloHandler = func(w http.ResponseWriter, req *http.Request) {
@@ -22,7 +22,12 @@ var PostArticleHandler = func(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	article := reqArticle
+	article, err := services.PostArticleService(reqArticle)
+	if err != nil {
+		http.Error(w, "cannot post article\n", http.StatusInternalServerError)
+		return
+	}
+
 	json.NewEncoder(w).Encode(article)
 }
 
@@ -41,21 +46,29 @@ func ListArticleHandler(w http.ResponseWriter, req *http.Request) {
 		page = 1
 	}
 
-	fmt.Println("page: ", page)
+	articles, err := services.GetArticleListService(uint(page))
+	if err != nil {
+		http.Error(w, "Cannot Get Article List", http.StatusInternalServerError)
+		return
+	}
 
-	articles := []models.Article{models.Article1, models.Article2}
 	json.NewEncoder(w).Encode(articles)
 
 }
 
 func GetArticleByIDHanlder(w http.ResponseWriter, req *http.Request) {
-	articleID, err := strconv.Atoi(chi.URLParam(req, "id"))
+	idStr := chi.URLParam(req, "id")
+	articleID, err := strconv.Atoi(idStr)
 	if err != nil {
 		http.Error(w, "Invalid Article ID", http.StatusBadRequest)
 		return
 	}
-	res := fmt.Sprintf("Getting Article with ID: %d\n", articleID)
-	fmt.Println(res)
-	artile := models.Article1
-	json.NewEncoder(w).Encode(artile)
+
+	article, err := services.GetArticleService(uint(articleID))
+	if err != nil {
+		http.Error(w, "Cannot Get Article", http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(article)
 }
