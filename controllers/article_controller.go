@@ -1,4 +1,4 @@
-package handlers
+package controllers
 
 import (
 	"encoding/json"
@@ -6,23 +6,31 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi"
+	"github.com/ntk221/refactor_notion_backend/controllers/services"
 	"github.com/ntk221/refactor_notion_backend/models"
-	"github.com/ntk221/refactor_notion_backend/services"
 )
 
-var HelloHandler = func(w http.ResponseWriter, req *http.Request) {
+type MyAppController struct {
+	service services.ArticleServicer
+}
+
+func NewMyAppController(s services.ArticleServicer) *MyAppController {
+	return &MyAppController{service: s}
+}
+
+func (c *MyAppController) HelloHandler(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, "Hello, World!\n")
 }
 
-var PostArticleHandler = func(w http.ResponseWriter, req *http.Request) {
+func (c *MyAppController) PostArticleHandler(w http.ResponseWriter, req *http.Request) {
 	var reqArticle models.Article
 	if err := json.NewDecoder(req.Body).Decode(&reqArticle); err != nil {
 		http.Error(w, "cannot decode json\n", http.StatusBadRequest)
 		return
 	}
 
-	article, err := services.PostArticleService(reqArticle)
+	article, err := c.service.PostArticleService(reqArticle)
 	if err != nil {
 		http.Error(w, "cannot post article\n", http.StatusInternalServerError)
 		return
@@ -31,7 +39,7 @@ var PostArticleHandler = func(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(article)
 }
 
-func ListArticleHandler(w http.ResponseWriter, req *http.Request) {
+func (c *MyAppController) ListArticleHandler(w http.ResponseWriter, req *http.Request) {
 	queryMap := req.URL.Query()
 
 	var page int
@@ -46,7 +54,7 @@ func ListArticleHandler(w http.ResponseWriter, req *http.Request) {
 		page = 1
 	}
 
-	articles, err := services.GetArticleListService(uint(page))
+	articles, err := c.service.GetArticleListService(uint(page))
 	if err != nil {
 		http.Error(w, "Cannot Get Article List", http.StatusInternalServerError)
 		return
@@ -56,7 +64,7 @@ func ListArticleHandler(w http.ResponseWriter, req *http.Request) {
 
 }
 
-func GetArticleByIDHanlder(w http.ResponseWriter, req *http.Request) {
+func (c *MyAppController) GetArticleByIDHanlder(w http.ResponseWriter, req *http.Request) {
 	idStr := chi.URLParam(req, "id")
 	articleID, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -64,7 +72,7 @@ func GetArticleByIDHanlder(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	article, err := services.GetArticleService(uint(articleID))
+	article, err := c.service.GetArticleService(uint(articleID))
 	if err != nil {
 		http.Error(w, "Cannot Get Article", http.StatusInternalServerError)
 		return

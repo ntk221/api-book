@@ -7,20 +7,13 @@ import (
 	"github.com/ntk221/refactor_notion_backend/repositories"
 )
 
-func GetArticleService(articleID uint) (models.Article, error) {
-	// TODO: sql.DB 型を受け取るようにする
-	db, err := connectDB()
-	if err != nil {
-		return models.Article{}, err
-	}
-	defer db.Close()
-
-	article, err := repositories.GetArticleByID(db, articleID)
+func (s *MyAppService) GetArticleService(articleID uint) (models.Article, error) {
+	article, err := repositories.GetArticleByID(s.db, articleID)
 	if err != nil {
 		return models.Article{}, err
 	}
 
-	comments, err := repositories.SelectCommentList(db, articleID)
+	comments, err := repositories.SelectCommentList(s.db, articleID)
 	if err != nil {
 		return models.Article{}, err
 	}
@@ -31,16 +24,8 @@ func GetArticleService(articleID uint) (models.Article, error) {
 
 }
 
-func GetArticleListService(page uint) ([]models.Article, error) {
-	db, err := connectDB()
-	if err != nil {
-		return nil, err
-	}
-	defer db.Close()
-
-	fmt.Println("page: ", page)
-
-	articles, err := repositories.SelectArticleList(db, page)
+func (s *MyAppService) GetArticleListService(page uint) ([]models.Article, error) {
+	articles, err := repositories.SelectArticleList(s.db, page)
 
 	if err != nil {
 		fmt.Println("err: ", err)
@@ -52,14 +37,8 @@ func GetArticleListService(page uint) ([]models.Article, error) {
 	return articles, nil
 }
 
-func PostArticleService(article models.Article) (models.Article, error) {
-	db, err := connectDB()
-	if err != nil {
-		return models.Article{}, err
-	}
-	defer db.Close()
-
-	newArticle, err := repositories.InserArticle(db, article)
+func (s *MyAppService) PostArticleService(article models.Article) (models.Article, error) {
+	newArticle, err := repositories.InserArticle(s.db, article)
 	if err != nil {
 		return models.Article{}, err
 	}

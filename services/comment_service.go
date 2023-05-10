@@ -5,14 +5,8 @@ import (
 	"github.com/ntk221/refactor_notion_backend/repositories"
 )
 
-func InsertCommentService(comment models.Comment) (models.Comment, error) {
-	db, err := connectDB()
-	if err != nil {
-		return models.Comment{}, err
-	}
-	defer db.Close()
-
-	newComment, err := repositories.InsertComment(db, comment)
+func (s *MyAppService) InsertCommentService(comment models.Comment) (models.Comment, error) {
+	newComment, err := repositories.InsertComment(s.db, comment)
 	if err != nil {
 		return models.Comment{}, err
 	}
@@ -20,14 +14,8 @@ func InsertCommentService(comment models.Comment) (models.Comment, error) {
 	return newComment, nil
 }
 
-func SelectCommentList(articleID uint) ([]models.Comment, error) {
-	db, err := connectDB()
-	if err != nil {
-		return nil, err
-	}
-	defer db.Close()
-
-	comments, err := repositories.SelectCommentList(db, articleID)
+func (s *MyAppService) SelectCommentList(articleID uint) ([]models.Comment, error) {
+	comments, err := repositories.SelectCommentList(s.db, articleID)
 	if err != nil {
 		return nil, err
 	}
